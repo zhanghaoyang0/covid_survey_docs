@@ -1,43 +1,4 @@
 
-/home/yanglab_data/user/zhanghy/soft_slurm/ldsc/ldsc.py \
---ref-ld-chr /home/yanglab_data/user/zhanghy/gwas/plink_file/eas_ldscores/f/ \
---out ./bbj_f \
---rg /home/yanglab_data/user/zhanghy/gwas/summary/bbj/stratify/munge/Case_control_96_f.sumstats.gz,/home/yanglab_data/user/zhanghy/gwas/summary/bbj/stratify/munge/Case_control_37_f.sumstats.gz \
---w-ld-chr /home/yanglab_data/user/zhanghy/gwas/plink_file/eas_ldscores/f/
-
-/home/yanglab_data/user/zhanghy/soft_slurm/ldsc/ldsc.py \
---ref-ld-chr /home/yanglab_data/user/zhanghy/gwas/plink_file/eas_ldscores/m/ \
---out ./bbj_m \
---rg /home/yanglab_data/user/zhanghy/gwas/summary/bbj/stratify/munge/Case_control_96_m.sumstats.gz,/home/yanglab_data/user/zhanghy/gwas/summary/bbj/stratify/munge/Case_control_37_m.sumstats.gz \
---w-ld-chr /home/yanglab_data/user/zhanghy/gwas/plink_file/eas_ldscores/m/
-
-
-/home/yanglab_data/user/zhanghy/soft_slurm/ldsc/ldsc.py \
---ref-ld-chr /home/yanglab_data/user/zhanghy/gwas/plink_file/eur_w_ld_chr/m/ \
---out ~/ukb_m \
---rg /home/yanglab_data/user/zhanghy/gwas/summary/ukb/eur/munge/E11_m.sumstats.gz,/home/yanglab_data/user/zhanghy/gwas/summary/ukb/eur/munge/cataract_m.sumstats.gz \
---w-ld-chr /home/yanglab_data/user/zhanghy/gwas/plink_file/eur_w_ld_chr/m/
-
-/home/yanglab_data/user/zhanghy/soft_slurm/ldsc/ldsc.py \
---ref-ld-chr /home/yanglab_data/user/zhanghy/gwas/plink_file/eur_w_ld_chr/f/ \
---out ~/ukb_f \
---rg /home/yanglab_data/user/zhanghy/gwas/summary/ukb/eur/munge/E11_f.sumstats.gz,/home/yanglab_data/user/zhanghy/gwas/summary/ukb/eur/munge/cataract_f.sumstats.gz \
---w-ld-chr /home/yanglab_data/user/zhanghy/gwas/plink_file/eur_w_ld_chr/f/
-
-/home/yanglab_data/user/zhanghy/soft_slurm/ldsc/ldsc.py \
---ref-ld-chr /home/yanglab_data/user/xiuxh/newgwas/ldsc/ldscores/eur_w_ld_chr/ \
---out ~/ukb \
---rg /home/yanglab_data/user/xiuxh/newgwas/ldsc/munge/eur_t2d.sumstats.gz,/home/yanglab_data/user/xiuxh/newgwas/ldsc/munge/eur_pad.sumstats.gz \
---w-ld-chr /home/yanglab_data/user/xiuxh/newgwas/ldsc/ldscores/eur_w_ld_chr/
-
-/home/yanglab_data/user/zhanghy/soft_slurm/ldsc/ldsc.py \
---ref-ld-chr /home/yanglab_data/user/xiuxh/newgwas/ldsc/ldscores/eur_w_ld_chr/ \
---out ~/ukb \
---rg /home/yanglab_data/user/zhanghy/gwas/summary/other/eur/munge/xueal_nc2018_t2d.sumstats.gz,/home/yanglab_data/user/xiuxh/newgwas/ldsc/munge/eur_pad.sumstats.gz \
---w-ld-chr /home/yanglab_data/user/xiuxh/newgwas/ldsc/ldscores/eur_w_ld_chr/
-
-/home/yanglab_data/user/zhanghy/gwas/summary/bbj/result/ldsc/hetero/ldsc_out
-
 #=====================================================================================
 # dis_info
 #=====================================================================================
@@ -405,26 +366,16 @@ for (trait in c('Cl', 'K')){
 }
 
 #=====================================================================================
-# xxh eur pad | lia 
-# since all tab i used is unlia, i trans xxh's result (tab S2) to unlia with get_lia_factor(0.1, 0.053) in tab,
-# then only trans t2d-pad to lia and report by text.
+# eas female t2d bmi
 #=====================================================================================
-library(cause)
-load('/home/yanglab/xiuxh/newgwas/eur/1e3_forward/result.rdata')
-summary(result) 
-nrow(result$data) # 2310
-z = 0.15/((0.19-0.1)/(2*1.96))
-pnorm(abs(z), lower.tail=FALSE)*2
+mr = data.frame()
+load('/home/yanglab_data/user/zhanghy/gwas/summary/bbj/stratify/result/mr/spracklen_nature2020_t2d_f&QTL_4_f.rdata')
+load('/home/yanglab_data/user/zhanghy/gwas/summary/bbj/stratify/result/mr/spracklen_nature2020_t2d_f&QTL_4_f.rdata')
 
-# t2d-pad 2310
-load('/home/yanglab/xiuxh/newgwas/eur/1e3_reverse/result.rdata')
-summary(result) 
-nrow(result$data) # 967
-z = 0.14/((0.25-0.04)/(2*1.96))
-pnorm(abs(z), lower.tail=FALSE)*2
-get_lia_factor(0.075, 0.416) # cat 
-get_lia_factor(0.1, 0.053) # xxh eur pad
-exp(0.23*get_lia_factor(0.075, 0.053))
-exp(0.35*get_lia_factor(0.1, 0.053))
-
-get_lia_factor(0.1, 0.075)
+df = read.csv(paste0(path, 'result/collect/t2d_cat/mr.csv'))
+mr = data.frame()
+for (method in c('MR.Egger', 'Inverse.variance.weighted', 'Weighted.median', 'Weighted.mode')){
+  sub = df[,c(names(df)[grepl(method, names(df))], 'nsnp_x', 'data1', 'data2', 'snp_r2.exposure', 'snp_r2.outcome', 'pthres')]%>%mutate(t=method)
+  names(sub) = c('nsnp', 'b_raw', 'se', 'p', 'nsnp_x', 'data1', 'data2', 'r2_data1', 'r2_data2', 'pthres', 'method')
+  mr = rbind(mr, sub)
+}

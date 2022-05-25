@@ -105,7 +105,7 @@ done;done
 #=====================================================================================
 ## clump.r
 library(TwoSampleMR)
-source('/home/yanglab_data/user/zhanghy/project/temp/code/source/source_mr.r')
+source('/home/yanglab_data/user/zhanghy/project/slurm_gwas_code/source/source_mr.r')
 get_t2dcat_diff_info('eas')
 data1_prior = data2_prior = 'none'
 
@@ -166,7 +166,7 @@ done
 #=====================================================================================
 # ld of instruments, remove for bi-dir test
 #=====================================================================================
-source('/home/yanglab_data/user/zhanghy/project/temp/code/source/source_mr.r')
+source('/home/yanglab_data/user/zhanghy/project/slurm_gwas_code/source/source_mr.r')
 get_t2dcat_diff_info('eas', F)
 
 out = c()
@@ -201,7 +201,7 @@ done
 #=====================================================================================
 ### mr.r
 library(TwoSampleMR)
-source('/home/yanglab_data/user/zhanghy/project/temp/code/source/source_mr.r')
+source('/home/yanglab_data/user/zhanghy/project/slurm_gwas_code/source/source_mr.r')
 get_t2dcat_diff_info('eas')
 
 for (i in 1:nrow(pair)){
@@ -216,7 +216,7 @@ for (i in 1:nrow(pair)){
 
   if (file.exists(file_out)){next()}
   load(file_in)
-  snp_pleio = get_snp_pleio(data2, path_list[[1]], 'mr', ld[[sex]]) # remove for bi-test
+  snp_pleio = get_snp_pleio(data2, data1, path_list[[1]], 'mr', ld[[sex]]) # remove for bi-test
   snp = read.table(file_clump, header=1)[,3]
   sex = ifelse(grepl('_m', data1), 'm', 'f')
   snp = snp[!snp%in%snp_pleio]
@@ -233,7 +233,7 @@ for (i in 1:nrow(pair)){
 }
 
 # collect.r
-source('/home/yanglab_data/user/zhanghy/project/temp/code/source/source_mr.r')
+source('/home/yanglab_data/user/zhanghy/project/slurm_gwas_code/source/source_mr.r')
 get_t2dcat_diff_info('all')
 
 out = c()
@@ -254,7 +254,7 @@ write.csv(collect, paste0(path_list[['bbj']], 'result/collect/t2d_cat/mr.csv') ,
 # gsmr
 #=====================================================================================
 ## make_snp_list_for_extract.r 
-source('/home/yanglab_data/user/zhanghy/project/temp/code/source/source_mr.r')
+source('/home/yanglab_data/user/zhanghy/project/slurm_gwas_code/source/source_mr.r')
 get_t2dcat_diff_info('eas', F)
 
 out = c()
@@ -285,7 +285,7 @@ done
 
 ### gsmr.r
 library(gsmr)
-source('/home/yanglab_data/user/zhanghy/project/temp/code/source/source_mr.r')
+source('/home/yanglab_data/user/zhanghy/project/slurm_gwas_code/source/source_mr.r')
 get_gsmr_para('gsmr', 'eas') # get_gsmr_para setting
 get_t2dcat_diff_info('eas')
 
@@ -308,7 +308,7 @@ for (i in 1:nrow(pair)){
   file_clump = paste0(path_list[[1]], 'result/clump/clump_out/', pthres, '/', data1, '&', data2, '.clumped')
   load(file_in)
 
-  snp_pleio = get_snp_pleio(data2, path_list[[1]], 'mr', ld[[sex]]) # remove for bi-test
+  snp_pleio = get_snp_pleio(data2, data1, path_list[[1]], 'mr', ld[[sex]]) # remove for bi-test
   snp = read.table(file_clump, header=1)[,3]
   snp = snp[!snp%in%snp_pleio]
   res = get_gsmr_res(df, snp, mat[[sex]])
@@ -340,7 +340,7 @@ write.csv(collect, paste0(path_list[['bbj']], 'result/collect/t2d_cat/gsmr.csv')
 #=====================================================================================
 # cause_prune.r 
 library(cause)
-source('/home/yanglab_data/user/zhanghy/project/temp/code/source/source_mr.r')
+source('/home/yanglab_data/user/zhanghy/project/slurm_gwas_code/source/source_mr.r')
 get_t2dcat_diff_info('eas', F)
 data1_prior = data2_prior = 'none'
 range = 1:nrow(pair)
@@ -380,7 +380,7 @@ for (i in 10){
 
 # cause_param.r
 library(cause)
-source('/home/yanglab_data/user/zhanghy/project/temp/code/source/source_mr.r')
+source('/home/yanglab_data/user/zhanghy/project/slurm_gwas_code/source/source_mr.r')
 get_t2dcat_diff_info('eas', F)
 
 for (i in 1:nrow(pair)){
@@ -401,7 +401,7 @@ for (i in 1:nrow(pair)){
 ### cause.r
 library(TwoSampleMR)
 library(cause)
-source('/home/yanglab_data/user/zhanghy/project/temp/code/source/source_mr.r')
+source('/home/yanglab_data/user/zhanghy/project/slurm_gwas_code/source/source_mr.r')
 get_t2dcat_diff_info('eas')
 
 data1_prior = data2_prior = 'none'
@@ -415,7 +415,7 @@ for (i in 10){
   if (file.exists(file_out)){next()}
   load(file_in1); load(file_in2)
 
-  snp_pleio = get_snp_pleio(data2, path_list[[1]], 'cause', ld[[sex]]) # remove for bi-test
+  snp_pleio = get_snp_pleio(data2, data1, path_list[[1]], 'cause', ld[[sex]]) # remove for bi-test
   df = res$df; pruned = res$pruned; pruned = pruned[!pruned%in%snp_pleio]
 
   res = get_cause_res(df, pruned, params)
@@ -441,7 +441,7 @@ for (i in 10){
 
 # collect.r
 library(cause)
-source('/home/yanglab_data/user/zhanghy/project/temp/code/source/source_mr.r')
+source('/home/yanglab_data/user/zhanghy/project/slurm_gwas_code/source/source_mr.r')
 get_t2dcat_diff_info('all')
 
 out = c()
@@ -464,7 +464,7 @@ write.csv(collect, paste0(path_list[['bbj']], 'result/collect/t2d_cat/cause.csv'
 # collect mr statistics
 #=====================================================================================
 ## logit to liability factor
-source('/home/yanglab_data/user/zhanghy/project/temp/code/source/source_mr.r')
+source('/home/yanglab_data/user/zhanghy/project/slurm_gwas_code/source/source_mr.r')
 get_t2dcat_diff_info('all')
 
 ## gsmr

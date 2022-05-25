@@ -28,23 +28,14 @@
 # scp -P 22 -r zhanghy@219.135.135.231:/mnt/disk1/yang/zhanghy/code/答辩20220518.pptx ./
 
 
-ssh compute8
 # export PATH=/home/yanglab/zhanghy/miniconda2/bin/:$PATH
-conda activate r4
-frq ()  {
-squeue | awk '{print $8}' | grep -v NODELIST | sort | uniq -c 
-}
-del ()  {
- scancel `squeue | grep Re | awk '{print $1}' `
-}
+# conda activate r4
+frq ()  {squeue | awk '{print $8}' | grep -v NODELIST | sort | uniq -c }
+del ()  {scancel `squeue | grep Re | awk '{print $1}' `}
 del_all () {
  scancel `squeue | grep -v JOB | awk '{print $1}'`
 }
-cd_db () {
- cd /home/yanglab_data/user/zhanghy/gwas/summary/
-}
-cd_code () {
- cd /home/yanglab_data/user/zhanghy/project/temp/code/
-}
+cd_db () {cd /home/yanglab_data/user/zhanghy/gwas/summary/}
+cd_code () {cd /home/yanglab_data/user/zhanghy/project/slurm_gwas_code/}
 
 # 2, 5, 6, 7 can be used
