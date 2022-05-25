@@ -1,0 +1,30 @@
+#=====================================================================================
+## phenomeScan
+#=====================================================================================
+library(dplyr)
+path = '/bigdat1/user/zhanghy/gwas/ukb/fdxr/'
+df = read.table(paste0(path, 'FDXR_recodeA.raw'), header=1)
+df[,2:6] = NULL
+write.csv(df, paste0(path, 'phenomeScan/data/trait.csv'), row.names=F)
+
+load(paste0(path, 'temp_phewas.rdata'))
+
+df = read.table(paste0(path, '../data/brt_pheno_for_bolt.txt'), header=1)
+
+
+file_pheno="/bigdat1/user/zhanghy/gwas/ukb/fdxr/phenomeScan/data/data.csv"
+file_trait="/bigdat1/user/zhanghy/gwas/ukb/fdxr/phenomeScan/data/trait.csv"
+file_variable="/bigdat1/user/zhanghy/soft_slurm/PHESANT-master/variable-info/outcome-info.tsv"
+file_code="/bigdat1/user/zhanghy/soft_slurm/PHESANT-master/variable-info/data-coding-ordinal-info.txt"
+trait="rs55653369_G"
+
+cd /bigdat1/user/zhanghy/soft_slurm/PHESANT-master/WAS/
+  Rscript phenomeScan.r \
+--phenofile=$file_pheno \
+--traitofinterestfile=$file_trait \
+--variablelistfile=$file_variable \
+--datacodingfile=$file_code \
+--traitofinterest=$trait \
+--resDir="./temp_res/" \
+--userId="FID"
+

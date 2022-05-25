@@ -1,0 +1,50 @@
+
+# server
+    ### amax
+    # ssh -p 22 zhanghy@172.16.86.52
+    # weightmode
+    # /data0/yanglab/group_meeting
+    ### clust
+    # ssh -p 22 zhanghy@219.135.135.231
+    # kendejifengkuangxingqisi
+    ### web1
+    # ssh -p 10285 zhanghy@121.46.19.89
+    # zhanghy&monsalary
+    # ldsc: export PATH=/home/zhanghy/anaconda2/bin/:$PATH
+    ### control2
+    # ssh -p 10661 qiml@121.46.19.2
+    # zhanghy&monsalary
+    # ldsc: export PATH=/home/zhanghy/anaconda2/bin/:$PATH
+    ### wenzhou
+    # vpn  liuwy   8leynHkGw8
+    # ssh -p 22 liuwy@172.16.10.11
+    # liuwy@20220420
+## pub key 
+# ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC073q4FP6uKLsqhjXvbcpgStJ8i7r44phqkBujbluP2Pyn6fpksCChhTVk8a9Kv5XmZkKslaXT2WjJiPbV6b8+ZHxScIVnDL0Sg3fmyjVVobuU4VScTe/u0p3laKk1GYjAJww6LDRKJ62po/0ugAMTUaLAFsTg8jNkDDqkGzrTTnEYECoWNub9CiVlaAgHxr+vdmxVtq+PdKFzGzbx/RktYsHKBo9zwCH8aoJHGTEhJej7cq/rGzFFtxJ/lDHN84brd1QfKn6FhJRMxY8CsG8JRNkLZIh+jV3bIljG1n5mxpPCWZ+XU0rvIC0UKTldKE8HAjhIKh1z5OQL9MzqWU8QN+WV3CiWPf925TU6j5IhMaXj44jkfah06kuWPXFH73xlVvpnR7ZtCfWe5Y8s2Vux++iVVbJOeX6Gb6pKYwbWSXbsPmcQJ/X6mIpQfbuL9kopKflozZahqEt+CICkFSn4I7ahZ0EnsoPXdXdFypTrVZ0TF60v7EuTed0eWsARlnE= admin@PS-12
+## pass file
+# scp -r ./bfile/ zhanghy@219.135.135.231:~/
+# scp -r ./bfile/ liuwy@172.16.253.32:~/
+# scp -P 10661 -r zhanghy@121.46.19.2:/home/yanglab_data/user/zhanghy/project/temp/code/20220518-zhanghy.pptx   ./
+# scp -P 22 -r zhanghy@219.135.135.231:/mnt/disk1/yang/zhanghy/code/答辩20220518.pptx ./
+
+
+ssh compute8
+# export PATH=/home/yanglab/zhanghy/miniconda2/bin/:$PATH
+conda activate r4
+frq ()  {
+squeue | awk '{print $8}' | grep -v NODELIST | sort | uniq -c 
+}
+del ()  {
+ scancel `squeue | grep Re | awk '{print $1}' `
+}
+del_all () {
+ scancel `squeue | grep -v JOB | awk '{print $1}'`
+}
+cd_db () {
+ cd /home/yanglab_data/user/zhanghy/gwas/summary/
+}
+cd_code () {
+ cd /home/yanglab_data/user/zhanghy/project/temp/code/
+}
+
+# 2, 5, 6, 7 can be used

@@ -1,0 +1,10 @@
+# Read more about SSH config files: https://linux.die.net/man/5/ssh_config
+Host control
+    HostName 121.46.19.2
+    port 10661
+    User zhanghy
+
+Host wmu
+    HostName 172.16.10.11
+    port 22
+    User liuwy
