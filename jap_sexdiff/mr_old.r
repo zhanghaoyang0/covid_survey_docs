@@ -495,67 +495,22 @@ source('/home/yanglab_data/user/zhanghy/project/slurm_gwas_code/source/source_mr
 get_bbj_stratify_info()
 path = path_list[['bbj']]
 ## gsmr
-gsmr = read.csv(paste0(path, 'result/collect/t2d_cat/gsmr.csv'))
-gsmr = gsmr%>%rename(nsnp=gsmr_nsnp, b=gsmr_b, se=gsmr_se, p=gsmr_pval)%>%mutate(method="GSMR")%>%select(method, data1, data2, nsnp, nsnp_x, b, se, p, r2_data1, r2_data2, pthres)
-
+gsmr = read.csv(paste0(path, 'result/collect/gsmr.csv'))
+gsmr = gsmr%>%rename(nsnp=gsmr_nsnp, b=gsmr_b, se=gsmr_se, p=gsmr_pval)%>%mutate(method="GSMR")%>%select(method, data1, data2, nsnp, b, se, p,  pthres)
 ## mr
-df = read.csv(paste0(path, 'result/collect/t2d_cat/mr.csv'))
+df = read.csv(paste0(path, 'result/collect/mr.csv'))
 mr = data.frame()
 for (method in c('MR.Egger', 'Inverse.variance.weighted', 'Weighted.median', 'Weighted.mode')){
-  sub = df[,c(names(df)[grepl(method, names(df))], 'nsnp_x', 'data1', 'data2', 'snp_r2.exposure', 'snp_r2.outcome', 'pthres')]%>%mutate(t=method)
-  names(sub) = c('nsnp', 'b_raw', 'se', 'p', 'nsnp_x', 'data1', 'data2', 'r2_data1', 'r2_data2', 'pthres', 'method')
+  sub = df[,c(names(df)[grepl(method, names(df))],  'data1', 'data2',  'pthres')]%>%mutate(t=method)
+  names(sub) = c('nsnp', 'b', 'se', 'p', 'data1', 'data2',  'pthres', 'method')
   mr = rbind(mr, sub)
 }
-
-## mrlap
-mrlap = read.csv(paste0(path, 'result/collect/t2d_cat/mrlap.csv'))%>%mutate(method='MRlap')
-mrlap = mrlap%>%merge(mr%>%filter(method=='Inverse.variance.weighted')%>%select(data1, data2, nsnp, nsnp_x, r2_data1, r2_data2, pthres), by=c('data1', 'data2'))
-
 ## cause
-cause = read.csv(paste0(path, 'result/collect/t2d_cat/cause.csv'))
-cause = cause%>%rename(nsnp=cause_nsnp, b=cause_causal_gamma_b, se=cause_causal_gamma_se, p=cause_causal_gamma_pval, r2_data1=snp_r2.exposure, r2_data2=snp_r2.outcome)%>%
-  mutate(method="CAUSE", pthres=1e-3)%>%select(method, data1, data2, nsnp, nsnp_x, b, se, p, r2_data1, r2_data2, pthres)
+cause = read.csv(paste0(path, 'result/collect/cause.csv'))
+cause = cause%>%rename(nsnp=cause_nsnp, b=cause_causal_gamma_b, se=cause_causal_gamma_se, p=cause_causal_gamma_pval)%>%
+  mutate(method="CAUSE", pthres=1e-3)
 
 ## combine
-res = data.frame(rbind(cause, gsmr, mr, mrlap))
+res = data.frame(rbind(cause[,names(gsmr)], gsmr, mr))
 res = res%>%mutate(b_l=b-1.96*se, b_u=b+1.96*se)%>%mutate(b_raw=b, b_l_raw=b_l, b_u_raw=b_u)
-## logit to liability
-res[res$data1 == 'E11_m', c('b_raw', 'b_l', 'b_u')] = res[res$data1 == 'E11_m', c('b_raw', 'b_l', 'b_u')]*get_lia_factor(prev_t2d_m_eur, prev_cataract_m_eur)
-res[res$data1 == 'E11_f', c('b_raw', 'b_l', 'b_u')] = res[res$data1 == 'E11_f', c('b_raw', 'b_l', 'b_u')]*get_lia_factor(prev_t2d_f_eur, prev_cataract_f_eur)
-res[res$data2 == 'E11_m', c('b_raw', 'b_l', 'b_u')] = res[res$data2 == 'E11_m', c('b_raw', 'b_l', 'b_u')]*get_lia_factor(prev_cataract_m_eur, prev_t2d_m_eur)
-res[res$data2 == 'E11_f', c('b_raw', 'b_l', 'b_u')] = res[res$data2 == 'E11_f', c('b_raw', 'b_l', 'b_u')]*get_lia_factor(prev_cataract_f_eur, prev_t2d_f_eur)
 
-res[res$data1 == 'Case_control_37_m', c('b_raw', 'b_l', 'b_u')] = res[res$data1 == 'Case_control_37_m', c('b_raw', 'b_l', 'b_u')]*get_lia_factor(prev_cataract_m_eas, prev_t2d_m_eas)
-res[res$data1 == 'Case_control_37_f', c('b_raw', 'b_l', 'b_u')] =  res[res$data1 == 'Case_control_37_f', c('b_raw', 'b_l', 'b_u')]*get_lia_factor(prev_cataract_f_eas, prev_t2d_f_eas)
-res[res$data2 == 'Case_control_37_m', c('b_raw', 'b_l', 'b_u')] =  res[res$data2 == 'Case_control_37_m', c('b_raw', 'b_l', 'b_u')]*get_lia_factor(prev_t2d_m_eas, prev_cataract_m_eas)
-res[res$data2 == 'Case_control_37_f', c('b_raw', 'b_l', 'b_u')] =  res[res$data2 == 'Case_control_37_f', c('b_raw', 'b_l', 'b_u')]*get_lia_factor(prev_t2d_f_eas, prev_cataract_f_eas)
-
-res[,c('or', 'or_l', 'or_u')] = exp(res[,c('b_raw', 'b_l', 'b_u')])
-res[,c('or_raw', 'or_l_raw', 'or_u_raw')] = exp(res[,c('b_raw', 'b_l_raw', 'b_u_raw')])
-res[res=='MR.Egger'] = 'MR-Egger'; res[res=='Inverse.variance.weighted'] = 'IVW'; res[res=='Weighted.median'] = 'Weighted median'; res[res=='Weighted.mode'] = 'Weighted mode'
-write.csv(res, '/home/yanglab_data/user/zhanghy/gwas/summary/bbj/stratify/result/collect/t2d_cat/collect.csv', row.names=F)
-
-res = res%>%filter(method!='MRlap')
-t2d_m_eur = res%>%filter(data1=='E11_m')%>%pull('b_raw')
-t2d_f_eur = res%>%filter(data1=='E11_f')%>%pull('b_raw')
-cat_m_eur = res%>%filter(data1=='cataract_m')%>%pull('b_raw')
-cat_f_eur = res%>%filter(data1=='cataract_f')%>%pull('b_raw')
-
-t2d_m_agen = res%>%filter(data1=='spracklen_nature2020_t2d_m'&data2=='Case_control_37_m')%>%pull('b_raw')
-t2d_f_agen = res%>%filter(data1=='spracklen_nature2020_t2d_f'&data2=='Case_control_37_f')%>%pull('b_raw')
-cat_m_agen = res%>%filter(data1=='Case_control_37_m'&data2=='spracklen_nature2020_t2d_m')%>%pull('b_raw')
-cat_f_agen = res%>%filter(data1=='Case_control_37_f'&data2=='spracklen_nature2020_t2d_f')%>%pull('b_raw')
-
-t2d_m_bbj = res%>%filter(data1=='Case_control_96_m'&data2=='Case_control_37_m')%>%pull('b_raw')
-t2d_f_bbj = res%>%filter(data1=='Case_control_96_f'&data2=='Case_control_37_f')%>%pull('b_raw')
-cat_m_bbj = res%>%filter(data1=='Case_control_37_m'&data2=='Case_control_96_m')%>%pull('b_raw')
-cat_f_bbj = res%>%filter(data1=='Case_control_37_f'&data2=='Case_control_96_f')%>%pull('b_raw')
-
-t.test(t2d_m_agen, t2d_f_agen, paired=T)
-t.test(cat_m_agen, cat_f_agen, paired=T)
-
-t.test(t2d_m_bbj, t2d_f_bbj, paired=T)
-t.test(cat_m_bbj, cat_f_bbj, paired=T)
-
-t.test(t2d_m_eur, t2d_f_eur, paired=T)
-t.test(cat_m_eur, cat_f_eur, paired=T)

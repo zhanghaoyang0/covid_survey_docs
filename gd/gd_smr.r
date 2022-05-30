@@ -1,24 +1,40 @@
 #=====================================================================================
 # convert to cojo format
 #=====================================================================================
-source('/home/yanglab_data/user/zhanghy/project/temp/code/source_mr.r')
+source('/home/yanglab_data/user/zhanghy/project/slurm_gwas_code/source/source_mr.r')
 get_gd_info(F)
 
-for (data in c('E11_f', 'finr5_263', 'giant_wc_f_2015', 'giant_whr_f_2015', 'giant_bmi_f_2015', 'giant_hip_f_2015')){
+datas = c('E11_f', 'finr5_263', 'giant_wc_f_2015', 'giant_whr_f_2015', 'giant_bmi_f_2015', 'giant_hip_f_2015',
+  'giant_whradjbmi_f_2015', 'giant_wcadjbmi_f_2015.txt', 'giant_hipadjbmi_f_2015.txt.gz')
+
+for (data in c('giant_whradjbmi_f_2015', 'giant_wcadjbmi_f_2015', 'giant_hipadjbmi_f_2015')){
   print(data)
   path_in = path_list[sapply(names(path_list), function(x){grepl(x, data)})][[1]]
-  df = read.table(paste0(path_in, 'clean/', data, '.txt.gz'), header=1)
+  file_out = paste0(path_list[['giant']], 'result/gcta/for_cojo/', data)
+  if (file.exists(file_out)){next}
+  df = read.table(paste0(path_in, 'clean/ukb_ref/', data, '.txt.gz'), header=1)
   df = df%>%select(SNP, A1, A2, FRQ, BETA, SE, P, N)%>%rename(freq=FRQ, b=BETA, se=SE, p=P)
-  write.table(df, paste0(path_list[['giant']], 'result/gcta/for_cojo/', data), row.names = F, sep = '\t', quote = F)
+  write.table(df, file_out, row.names = F, sep = '\t', quote = F)
 }
+
+
+# eas bmi | for grad
+data='QTL_4_f'
+file_in = paste0('/home/yanglab_data/user/zhanghy/gwas/summary/bbj/stratify/clean/', data, '.txt.gz')
+file_out = paste0(path_list[['giant']], 'result/gcta/for_cojo/', data)
+df = read.table(file_in, header=1)
+df = df%>%select(SNP, A1, A2, FRQ, BETA, SE, P, N)%>%rename(freq=FRQ, b=BETA, se=SE, p=P)
+write.table(df, file_out, row.names = F, sep = '\t', quote = F)
+
+
+
 
 #=====================================================================================
 # pre- and post-meta smr
 #=====================================================================================
 path_in="/home/yanglab_data/user/zhanghy/gwas/summary/giant/result/gcta/for_cojo/"
 path_out="/home/yanglab_data/user/zhanghy/gwas/summary/giant/result/gcta/smr/"
-
-path_bfile="/home/yanglab_data/user/zhanghy/gwas/ukb/bfile/mr_ref/brt_f"
+path_bfile="/home/yanglab_data/user/zhanghy/gwas/ukb/bfile/mr_ref/chn_f"
 
 for data in `ls $path_in`
 do
@@ -52,7 +68,8 @@ for (qtl in c('eqtl')){
   }
 }
 
-res = na.omit(res)
+res = res%>%na.omit()%>%filter(!grepl('mtag', data))
+
 res1 = res[res$p_HEIDI>=0.05 & res$nsnp_HEIDI>=10 & !is.na(res$p_SMR),]
 
 res2 = data.frame()
@@ -72,4 +89,4 @@ for (i in 1:nrow(res2)){
 }
 
 
-write.csv(res2, paste0(path, '../../collect/smr.csv'), row.names = F)
+write.csv(res2, paste0(path, '../../collect/smr_ttt.csv'), row.names = F)
